@@ -1,3 +1,13 @@
+[TOC]
+
+
+
+## 背景
+
+CK中Keeper的实现，采用对unraft库进行封装实现。
+
+unraft的链接：[GitHub - eBay/NuRaft: C++ implementation of Raft core logic as a replication library](https://github.com/eBay/NuRaft)
+
 ## 启动总入口函数
 
 programs\main.cpp 为各种bin启动的总入口。keeper单独程序入口文件programs\keeper\keeper_main.cpp.
@@ -58,4 +68,37 @@ Context::initializeKeeperDispatcher()	->
 	shared->keeper_dispatcher->initialize(...) / KeeperDispatcher::initialize()	->
 		
 ```
+
+## KeeperDispatcher
+
+KeeperDispatcher相当于一个调度类。
+
+
+
+## KeeperServer的启动
+
+KeeperServer封装了unraft库中的一个raftserver示例。
+
+```
+KeeperDispatcher::initialize()	->
+	KeeperServer::startup()	->
+		state_machine->init() //状态机的初始化
+		keeper_context->setLastCommitIndex() //设置最新的commitId
+		state_manager->loadLogStore(...) //加载logStore
+		loadLatestConfig() //加载最新配置
+		launchRaftServer() //启动RaftServer示例
+		keeper_context->setServerState(..) //设置上下文中Server的状态
+```
+
+这里先看raftserver的启动，即launchRaftServer。
+
+
+
+## 参考资料
+
+关于CK内部Keeper原理：
+
+[clickhouse新特性之---clickhouse-keeper - 墨天轮](https://www.modb.pro/db/145381)
+
+[ClickHouse Keeper 源码解析-阿里云开发者社区](https://developer.aliyun.com/article/836778)
 
